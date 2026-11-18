@@ -8,6 +8,12 @@ Skills and MCP servers for an [ACRYL Blends](https://acrylblends.github.io) app,
 - **For the agent**: `mcp_register` adds a server, `mcp_load` connects one only when it is needed, `mcp_call` calls its tools. A server
   that is not loaded costs no context.
 
+| Skills | MCP servers |
+|---|---|
+| ![The Skills tab: each skill, its SKILL.md path and description, Model Visible switches](docs/screen-skills.jpg) | ![The MCP tab: servers with their mode, transport, version and tools](docs/screen-mcp.jpg) |
+
+Shown in DeepSeek Harness, where alone-tree made it, with the labels in English; in a Blends app the section is called Skills & MCP.
+
 ## Add it
 
 In a Blends app that runs (`npm run dev`):
