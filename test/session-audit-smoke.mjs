@@ -278,19 +278,19 @@ const fileF = await put("proj-c", "session-fff", "session.jsonl", Buffer.from(
     ["the running state", /data\.scanning === true/],
     ["the settled state", /audit\.done !== true/],
     // Without this the UI treats a record read off disk as fresh news, and
-    // "没有会话受影响" comes back on every restart (2026-09-14, on-machine).
+    // "No session is affected" comes back on every restart (2026-09-14, on-machine).
     ["the ran-here gate", /audit\.checked !== true/],
-    ["the wait notice", /能力库正在检查/],
-    ["the wait notice's side effect warning", /历史会话目录可能暂时无法查看/],
+    ["the wait notice", /Checking older sessions/],
+    ["the wait notice's side effect warning", /session list may be unavailable meanwhile/],
     ["the wait notice bookkeeping", /dsh-skill-mcp-manager:checking-seen/],
-    ["the problem result", /有 \$\{affected\} 个历史会话无法查看/],
-    ["the all-clear result", /没有会话受影响，请放心使用/],
+    ["the problem result", /\$\{affected\} older sessions cannot be opened/],
+    ["the all-clear result", /No session is affected/],
     ["the result bookkeeping", /dsh-skill-mcp-manager:result-shown/],
   ];
   for (const [what, pattern] of must) {
     if (!pattern.test(source)) failed.push(`client.js no longer carries ${what}`);
   }
-  if (!source.includes("本次不再显示") || !source.includes("知道了")) {
+  if (!source.includes("Hide for now") || !source.includes("\"OK\"")) {
     failed.push("a host change replaced the close control, but the copy was not updated with it");
   }
   // The banner must key off the host's state, never off the toast's "told"

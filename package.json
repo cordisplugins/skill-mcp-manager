@@ -1,19 +1,19 @@
 {
-  "name": "dsh-skill-mcp-manager",
-  "description": "能力库 (Capability) — one-stop visual management of DSH Skills & MCP: on-demand MCP loading, in-session hot reload, and SKILL/MCP descriptions viewable in the plugin.",
-  "version": "1.2.2",
+  "name": "skill-mcp-manager",
+  "description": "Skills and MCP servers for ACRYL Blends apps: a Settings page that lists, adds, switches and tests them, and MCP servers loaded only when the agent needs them. A port of alone-tree/dsh-skill-mcp-manager 1.2.2 (MIT).",
+  "version": "1.0.0",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alone-tree/dsh-skill-mcp-manager.git"
+    "url": "git+https://github.com/cordisplugins/skill-mcp-manager.git"
   },
-  "homepage": "https://github.com/alone-tree/dsh-skill-mcp-manager",
+  "homepage": "https://github.com/cordisplugins/skill-mcp-manager",
   "type": "module",
-  "main": "lib/index.js",
+  "main": "index.js",
   "exports": {
-    ".": "./lib/index.js",
+    ".": "./index.js",
     "./client": "./client/client.js",
     "./package.json": "./package.json"
   },
@@ -29,49 +29,38 @@
     }
   },
   "files": [
-    "lib/index.js",
-    "lib/child-env.js",
-    "lib/mcp-result.js",
-    "lib/stdio-transport.js",
-    "lib/skill.js",
-    "lib/session-audit.js",
-    "lib/ui.js",
+    "index.js",
+    "dist/server.js",
     "client/client.js",
-    "AGENTS.md",
     "README.md",
-    "README.zh.md",
-    "cordis.patch.yml",
-    "cordis.patch.example.yml",
-    "docs/screenshot-mcp.png",
-    "docs/screenshot-skills.png",
     "LICENSE"
   ],
   "license": "MIT",
   "keywords": [
+    "cordis",
+    "cordis-plugin",
+    "acrylblends",
     "dsh",
-    "dsh-plugin",
-    "deepseek-harness",
-    "capability",
-    "ability-library",
     "mcp",
     "skill",
-    "catalog",
-    "cordis"
+    "settings"
   ],
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
     "@deepseek-ai/schemastery": "^3.18.1",
     "react": "^18.2.0"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0",
-    "cross-spawn": "^7.0.6",
-    "yaml": "^2.5.0"
-  },
   "devDependencies": {
     "@deepseek-ai/dsh-llm": "^0.1.0-rc.6 || ^0.2.0-rc.1",
     "@deepseek-ai/dsh-tools": "^0.1.0-rc.6 || ^0.2.0-rc.1",
     "zod": "^4.4.3",
-    "zod-to-json-schema": "^3.25.1"
+    "zod-to-json-schema": "^3.25.1",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "cross-spawn": "^7.0.6",
+    "yaml": "^2.5.0",
+    "esbuild": "0.25.10"
+  },
+  "scripts": {
+    "build": "esbuild lib/index.js --bundle --platform=node --target=node22 --format=esm '--external:@deepseek-ai/*' --external:yaml --external:react \"--banner:js=import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\" --outfile=dist/server.js"
   }
 }

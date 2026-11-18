@@ -1,6 +1,6 @@
-window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) => {
+window.__ModuleLoader__.load({ id: "skill-mcp-manager", factory: (require) => {
 
-  // Pure-JS client bundle (no JSX/TS). Registers one "能力库 (Capability)"
+  // Pure-JS client bundle (no JSX/TS). Registers one "Skills & MCP"
   // settings section with 技能/MCP tabs. Talks to the host over same-origin
   // HTTP routes mounted by lib/ui.js.
 
@@ -8,7 +8,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
   const h = React.createElement;
   const { useState, useEffect, useCallback } = React;
 
-  const name = "dsh-skill-mcp-manager";
+  const name = "skill-mcp-manager";
   const inject = ["slots"];
 
   // ── fetch ────────────────────────────────────────────────────────────────
@@ -177,19 +177,19 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       setClosed(true);
     } },
       h("span", { className: "smx-legacy" },
-        h("span", { className: "smx-legacy__title" }, `因 DSH 版本升级，有 ${audit.affected} 个历史会话无法查看`),
+        h("span", { className: "smx-legacy__title" }, `After a DSH upgrade, ${audit.affected} older sessions cannot be opened`),
         h("span", null,
-          "DSH 升级后调整了 MCP 注入消息的格式规范，旧会话的 MCP 注入消息不再被支持，打开时会显示",
-          h("code", { className: "smx-legacy__code" }, "历史加载失败：failed to observe session … cannot safely transform unclassified message source"),
-          "。把上面这段报错交给 AI，让它去修；插件的提示里不含修复操作，详情见",
-          h("a", { className: "smx-legacy__link", href: REPAIR_GUIDE_URL, target: "_blank", rel: "noreferrer" }, "本项目 issue"),
+          "DSH changed the format of MCP messages, and older sessions that hold the old format show ",
+          h("code", { className: "smx-legacy__code" }, "failed to observe session … cannot safely transform unclassified message source"),
+          " when opened. Give that error to an AI to fix; this plugin does not repair them. Details: ",
+          h("a", { className: "smx-legacy__link", href: REPAIR_GUIDE_URL, target: "_blank", rel: "noreferrer" }, "the project issue"),
         ),
         h("span", { className: "smx-legacy__note" },
-          "修好后不需要手动关闭：下次启动扫描到 0 会自动停止。若你决定不修复这些会话，把 ",
-          h("code", { className: "smx-legacy__code" }, "~/.dsh/skill-mcp-manager/session-audit.json"),
-          " 里的 ",
+          "Once they are fixed this notice stops by itself at the next start. To stop it without fixing them, write ",
+          h("code", { className: "smx-legacy__code" }, "skill-mcp-manager/session-audit.json"),
+          " in the app's data folder: set ",
           h("code", { className: "smx-legacy__code" }, `"check": false`),
-          " 写入即可停止提示。",
+          ".",
         ),
       ),
     );
@@ -213,13 +213,13 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
     if (checking && !sessionSeen(CHECK_TOAST_KEY)) {
       return h("div", { className: "smx-toast smx-toast--checking", role: "status" },
         h("div", { className: "smx-toast__main" },
-          h("div", { className: "smx-toast__title" }, "因 DSH 版本升级，历史会话可能无法打开，能力库正在检查"),
-          h("div", { className: "smx-toast__text" }, "若历史会话较多，可能需要一些时间，请耐心等待；检查期间历史会话目录可能暂时无法查看。本检查是一次性临时动作，修复后不会再次出现。"),
+          h("div", { className: "smx-toast__title" }, "Checking older sessions that a DSH upgrade may have made unreadable"),
+          h("div", { className: "smx-toast__text" }, "With many sessions this can take a while; the session list may be unavailable meanwhile. This check runs once."),
         ),
         h("button", {
           type: "button",
           className: "smx-toast__close",
-          title: "本次不再显示",
+          title: "Hide for now",
           onClick: () => {
             sessionRemember(CHECK_TOAST_KEY);
             setTick((value) => value + 1);
@@ -232,16 +232,16 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       return h("div", { className: "smx-toast" + (affected > 0 ? " smx-toast--alert" : " smx-toast--ok"), role: "status" },
         h("div", { className: "smx-toast__main" },
           h("div", { className: "smx-toast__title" }, affected > 0
-            ? `因 DSH 版本升级，有 ${affected} 个历史会话无法查看`
-            : "没有会话受影响，请放心使用"),
+            ? `After a DSH upgrade, ${affected} older sessions cannot be opened`
+            : "No session is affected"),
           h("div", { className: "smx-toast__text" }, affected > 0
-            ? "把报错交给 AI，让它去修；详情见「设置 → 能力库」。"
-            : "历史会话检查已完成，以后不会再检查。"),
+            ? "Give the error to an AI to fix; details in Settings > Skills & MCP."
+            : "The session check is done and will not run again."),
         ),
         h("button", {
           type: "button",
           className: "smx-toast__close",
-          title: affected > 0 ? "本次不再显示" : "知道了",
+          title: affected > 0 ? "Hide for now" : "OK",
           onClick: () => {
             sessionRemember(RESULT_TOAST_KEY);
             setTick((value) => value + 1);
@@ -296,7 +296,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
     async function open(skill) {
       try {
         await postJson("/skill-mcp-manager/skills/open", { name: skill.name });
-        setNotice("已用系统编辑器打开 " + skill.path);
+        setNotice("Opened in the system editor: " + skill.path);
       } catch (err) {
         setError(errText(err) + " \u2014 " + skill.path);
       }
@@ -306,7 +306,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       setConfirming("");
       try {
         await postJson("/skill-mcp-manager/skills/delete", { name: skill.name });
-        setNotice("已删除 " + skill.name);
+        setNotice("Deleted " + skill.name);
         await refresh();
       } catch (err) {
         setError(errText(err));
@@ -317,48 +317,48 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       h("div", { className: "smx-row__main" },
         h("div", { className: "smx-row__top" },
           h("span", { className: "smx-row__name" }, skill.name),
-          skill.readonly ? h(Badge, { tone: "muted" }, "只读") : null,
+          skill.readonly ? h(Badge, { tone: "muted" }, "read-only") : null,
           h("span", { className: "smx-row__path" }, skill.path),
         ),
         skill.description ? h("div", { className: "smx-row__desc" }, skill.description) : null,
       ),
       h("div", { className: "smx-row__actions" },
         skill.readonly
-          ? h("span", { className: "smx-switchline__label" }, "只读（不可启停）")
+          ? h("span", { className: "smx-switchline__label" }, "Read-only (cannot be switched)")
           : h("label", { className: "smx-switchline" },
               h(Switch, { checked: skill.modelInvocable, onChange: () => toggle(skill) }),
-              h("span", { className: "smx-switchline__label" }, skill.modelInvocable ? "模型可见" : "模型隐藏"),
+              h("span", { className: "smx-switchline__label" }, skill.modelInvocable ? "Visible to the model" : "Hidden from the model"),
             ),
-        h("button", { type: "button", className: "smx-btn", onClick: () => open(skill) }, "打开"),
+        h("button", { type: "button", className: "smx-btn", onClick: () => open(skill) }, "Open"),
         skill.readonly
           ? null
           : confirming === skill.name
             ? h("span", { className: "smx-confirm" },
-                h("button", { type: "button", className: "smx-btn smx-btn--danger", onClick: () => remove(skill) }, "确认删除整个文件夹"),
-                h("button", { type: "button", className: "smx-btn", onClick: () => setConfirming("") }, "取消"),
+                h("button", { type: "button", className: "smx-btn smx-btn--danger", onClick: () => remove(skill) }, "Delete the whole folder"),
+                h("button", { type: "button", className: "smx-btn", onClick: () => setConfirming("") }, "Cancel"),
               )
-            : h("button", { type: "button", className: "smx-btn smx-btn--ghost", onClick: () => setConfirming(skill.name) }, "删除"),
+            : h("button", { type: "button", className: "smx-btn smx-btn--ghost", onClick: () => setConfirming(skill.name) }, "Delete"),
       ),
     ));
 
     return h("div", { className: "smx" },
       h("div", { className: "smx-head" },
         h("span", { className: "smx-count" }, skills
-          ? String(skills.length) + " 个技能 · 模型可见 " + skills.filter((s) => s.modelInvocable).length + " 个"
+          ? String(skills.length) + " skills · visible to the model: " + skills.filter((s) => s.modelInvocable).length + ""
           : ""),
-        h("button", { type: "button", className: "smx-btn", onClick: refresh }, "刷新"),
+        h("button", { type: "button", className: "smx-btn", onClick: refresh }, "Refresh"),
       ),
       notice ? h(Notice, { kind: "success", onDismiss: () => setNotice("") }, notice) : null,
       error ? h(Notice, { kind: "error", onDismiss: () => setError("") }, error) : null,
-      loading ? h(Empty, null, "加载中\u2026")
-        : skills && skills.length === 0 ? h(Empty, null, "没有可管理的技能（bundle 型 SKILL.md）")
+      loading ? h(Empty, null, "Loading\u2026")
+        : skills && skills.length === 0 ? h(Empty, null, "No skills to manage yet (a folder with a SKILL.md)")
         : h("ul", { className: "smx-list" }, rows),
     );
   }
 
   // ── MCP panel ────────────────────────────────────────────────────────────
   const TIERS = ["eager", "on-demand", "disabled"];
-  const TIER_LABEL = { "eager": "常驻", "on-demand": "按需", "disabled": "关闭" };
+  const TIER_LABEL = { "eager": "Always loaded", "on-demand": "On demand", "disabled": "Off" };
   const TIER_TONE = { "eager": "success", "on-demand": "info", "disabled": "muted" };
 
   function McpPanel() {
@@ -410,13 +410,13 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
     async function saveToolDesc() {
       const value = Number(toolDescDraft);
       if (!Number.isInteger(value) || value <= 0 || value > 5000) {
-        setError("工具描述截断必须是 1–5000 的正整数");
+        setError("The tool description limit must be a whole number from 1 to 5000");
         return;
       }
       try {
         await postJson("/skill-mcp-manager/settings", { toolDescriptionMaxLength: value });
         setToolDescMax(value);
-        setNotice("已更新工具描述截断为 " + value);
+        setNotice("Tool descriptions are now cut at " + value);
       } catch (err) {
         setError(errText(err));
       }
@@ -427,7 +427,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       // Empty clears the override (back to the SDK default of 10 MB).
       const value = text === "" ? null : Number(text);
       if (value !== null && (!Number.isInteger(value) || value <= 0)) {
-        setError("stdio 消息上限必须是正整数（MB），留空表示使用 SDK 默认 10 MB");
+        setError("The stdio message limit must be a whole number of MB; leave it empty for the SDK default of 10 MB");
         return;
       }
       try {
@@ -435,8 +435,8 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
         setBufferMb(value);
         setBufferDraft(value === null ? "" : String(value));
         setNotice(value === null
-          ? "已恢复 SDK 默认上限 10 MB；新上限对之后 mcp_load 的连接生效"
-          : "已把 stdio 消息上限调到 " + value + " MB；对之后 mcp_load 的连接生效");
+          ? "Back to the SDK default of 10 MB; it applies to connections made by later mcp_load calls"
+          : "The stdio message limit is now " + value + " MB; it applies to connections made by later mcp_load calls");
       } catch (err) {
         setError(errText(err));
       }
@@ -452,7 +452,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       try {
         const upgrading = entry.tier === "on-demand" && tier === "eager";
         await postJson("/skill-mcp-manager/mcp/tier", { name: entry.name, tier });
-        setNotice(upgrading ? "已升至 eager（运行中注册，前缀失效一次）" : "已切换 \u300c" + entry.name + "\u300d 到 " + tier);
+        setNotice(upgrading ? "Now always loaded (registered while running; the prompt cache is rebuilt once)" : "Switched " + entry.name + " to " + (TIER_LABEL[tier] || tier));
         await refresh(reveal);
       } catch (err) {
         setError(errText(err));
@@ -466,7 +466,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
           tool: tool.name,
           enabled,
         });
-        setNotice("已" + (enabled ? "启用 " : "禁用 ") + entry.name + "/" + tool.name);
+        setNotice((enabled ? "Enabled " : "Disabled ") + entry.name + "/" + tool.name);
         await refresh(reveal);
       } catch (err) {
         setError(errText(err));
@@ -478,7 +478,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       try {
         const data = await postJson("/skill-mcp-manager/mcp/load", { name: entry.name, peek: peek === true });
         setOutput(data.text || "");
-        setNotice(peek ? "已查看描述" : "已刷新快照");
+        setNotice(peek ? "Description read" : "Snapshot refreshed");
         await refresh(reveal);
       } catch (err) {
         setError(errText(err));
@@ -489,7 +489,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       setConfirming("");
       try {
         await postJson("/skill-mcp-manager/mcp/delete", { name: entry.name });
-        setNotice("已删除 " + entry.name);
+        setNotice("Deleted " + entry.name);
         setDetail("");
         await refresh(reveal);
       } catch (err) {
@@ -501,7 +501,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       const keys = Object.keys(entry.env || {});
       if (keys.length === 0) return null;
       return h("div", { className: "smx-detail__section" },
-        h("div", { className: "smx-detail__label" }, "环境变量"),
+        h("div", { className: "smx-detail__label" }, "Environment variables"),
         keys.map((k) => kv(k, entry.env[k])),
       );
     }
@@ -518,12 +518,12 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
     function toolsSection(entry) {
       if (!entry.tools || entry.tools.length === 0) {
         return h("div", { className: "smx-detail__section" },
-          h("div", { className: "smx-detail__label" }, "工具"),
-          h(Empty, null, "无工具快照（请刷新快照）"),
+          h("div", { className: "smx-detail__label" }, "Tools"),
+          h(Empty, null, "No tool snapshot yet (refresh the snapshot)"),
         );
       }
       return h("div", { className: "smx-detail__section" },
-        h("div", { className: "smx-detail__label" }, "工具 (" + entry.tools.length + ")"),
+        h("div", { className: "smx-detail__label" }, "Tools (" + entry.tools.length + ")"),
         h("ul", { className: "smx-tools" },
           entry.tools.map((tool) => h("li", {
             key: tool.name,
@@ -532,11 +532,11 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
             h("select", {
               className: cx("smx-tool__tier", tool.enabled === false && "is-disabled"),
               value: tool.enabled === false ? "disabled" : "enabled",
-              "aria-label": tool.name + " 档位",
+              "aria-label": tool.name + " mode",
               onChange: (event) => setToolEnabled(entry, tool, event.target.value === "enabled"),
             },
-              h("option", { value: "enabled" }, "启用"),
-              h("option", { value: "disabled" }, "禁用"),
+              h("option", { value: "enabled" }, "On"),
+              h("option", { value: "disabled" }, "Off"),
             ),
             h("span", { className: "smx-tool__name" }, tool.name),
             tool.description ? h("span", { className: "smx-tool__desc" }, tool.description) : null,
@@ -548,32 +548,32 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
     function detailBlock(entry) {
       return h("div", { className: "smx-detail" },
         h("div", { className: "smx-detail__section" },
-          h("div", { className: "smx-detail__label" }, "档位"),
+          h("div", { className: "smx-detail__label" }, "Mode"),
           h("select", {
             className: "smx-select",
             value: entry.tier,
             onChange: (e) => setTier(entry, e.target.value),
           }, TIERS.map((t) => h("option", { key: t, value: t }, TIER_LABEL[t] + " (" + t + ")"))),
         ),
-        kv("传输", entry.transport),
-        entry.serverDescription ? kv("描述", entry.serverDescription) : null,
-        entry.serverName ? kv("服务器自报名", entry.serverName) : null,
-        entry.serverVersion ? kv("版本", entry.serverVersion) : null,
-        entry.serverTitle ? kv("标题", entry.serverTitle) : null,
-        entry.websiteUrl ? kv("网站", entry.websiteUrl) : null,
-        entry.command !== null && entry.command !== undefined ? kv("命令", entry.command) : null,
-        (entry.args || []).length > 0 ? kv("参数", (entry.args || []).join(" ")) : null,
+        kv("Transport", entry.transport),
+        entry.serverDescription ? kv("Description", entry.serverDescription) : null,
+        entry.serverName ? kv("Server's own name", entry.serverName) : null,
+        entry.serverVersion ? kv("Version", entry.serverVersion) : null,
+        entry.serverTitle ? kv("Title", entry.serverTitle) : null,
+        entry.websiteUrl ? kv("Website", entry.websiteUrl) : null,
+        entry.command !== null && entry.command !== undefined ? kv("Command", entry.command) : null,
+        (entry.args || []).length > 0 ? kv("Arguments", (entry.args || []).join(" ")) : null,
         entry.url ? kv("URL", entry.url) : null,
-        entry.cwd ? kv("工作目录", entry.cwd) : null,
-        entry.instructions ? kv("使用说明", entry.instructions) : null,
-        entry.notes ? kv("备注", entry.notes) : null,
-        entry.lastLoadAt ? kv("上次刷新快照", entry.lastLoadAt) : null,
+        entry.cwd ? kv("Working folder", entry.cwd) : null,
+        entry.instructions ? kv("Instructions", entry.instructions) : null,
+        entry.notes ? kv("Notes", entry.notes) : null,
+        entry.lastLoadAt ? kv("Snapshot refreshed at", entry.lastLoadAt) : null,
         envRows(entry),
         headerRows(entry),
         toolsSection(entry),
         h("div", { className: "smx-detail__actions" },
-          h("button", { type: "button", className: "smx-btn", onClick: () => run(entry, true) }, "查看描述"),
-          h("button", { type: "button", className: "smx-btn", onClick: () => run(entry, false) }, "刷新快照"),
+          h("button", { type: "button", className: "smx-btn", onClick: () => run(entry, true) }, "Read description"),
+          h("button", { type: "button", className: "smx-btn", onClick: () => run(entry, false) }, "Refresh snapshot"),
         ),
         output ? h("pre", { className: "smx-output" }, output) : null,
       );
@@ -586,20 +586,20 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
           h("div", { className: "smx-row__top" },
             h("span", { className: "smx-row__name" }, entry.name),
             h(Badge, { tone: TIER_TONE[entry.tier] || "muted" }, TIER_LABEL[entry.tier] || entry.tier),
-            entry.connectFailed ? h(Badge, { tone: "muted" }, "连接失败，按按需处理") : null,
+            entry.connectFailed ? h(Badge, { tone: "muted" }, "Connection failed; treated as on demand") : null,
             entry.transport ? h("span", { className: "smx-row__meta" }, entry.transport) : null,
-            h("span", { className: "smx-row__meta" }, entry.toolCount + " 工具"),
+            h("span", { className: "smx-row__meta" }, entry.toolCount + " tools"),
           ),
           entry.serverDescription ? h("div", { className: "smx-row__desc" }, entry.serverDescription) : null,
         ),
         h("div", { className: "smx-row__actions" },
-          h("button", { type: "button", className: "smx-btn", onClick: () => setDetail(isOpen ? "" : entry.name) }, isOpen ? "收起" : "详情"),
+          h("button", { type: "button", className: "smx-btn", onClick: () => setDetail(isOpen ? "" : entry.name) }, isOpen ? "Hide" : "Details"),
           confirming === entry.name
             ? h("span", { className: "smx-confirm" },
-                h("button", { type: "button", className: "smx-btn smx-btn--danger", onClick: () => remove(entry) }, "确认删除条目"),
-                h("button", { type: "button", className: "smx-btn", onClick: () => setConfirming("") }, "取消"),
+                h("button", { type: "button", className: "smx-btn smx-btn--danger", onClick: () => remove(entry) }, "Delete this server"),
+                h("button", { type: "button", className: "smx-btn", onClick: () => setConfirming("") }, "Cancel"),
               )
-            : h("button", { type: "button", className: "smx-btn smx-btn--ghost", onClick: () => setConfirming(entry.name) }, "删除"),
+            : h("button", { type: "button", className: "smx-btn smx-btn--ghost", onClick: () => setConfirming(entry.name) }, "Delete"),
         ),
         isOpen ? detailBlock(entry) : null,
       );
@@ -607,14 +607,14 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
 
     return h("div", { className: "smx" },
       h("div", { className: "smx-head" },
-        h("span", { className: "smx-count" }, entries ? String(entries.length) + " 个服务器" : ""),
+        h("span", { className: "smx-count" }, entries ? String(entries.length) + " servers" : ""),
         h("div", { className: "smx-head__meta" },
-          h("button", { type: "button", className: "smx-btn", onClick: toggleReveal }, reveal ? "隐藏密钥" : "显示密钥"),
-          h("button", { type: "button", className: "smx-btn", onClick: () => refresh(reveal) }, "刷新"),
+          h("button", { type: "button", className: "smx-btn", onClick: toggleReveal }, reveal ? "Hide secrets" : "Show secrets"),
+          h("button", { type: "button", className: "smx-btn", onClick: () => refresh(reveal) }, "Refresh"),
         ),
       ),
       h("div", { className: "smx-setting" },
-        h("span", { className: "smx-setting__label" }, "工具描述截断（字符）"),
+        h("span", { className: "smx-setting__label" }, "Cut tool descriptions at (characters)"),
         h("input", {
           type: "number",
           className: "smx-input",
@@ -623,36 +623,36 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
           max: 5000,
           onChange: (e) => setToolDescDraft(e.target.value),
         }),
-        h("button", { type: "button", className: "smx-btn", onClick: saveToolDesc }, "保存"),
-        h("span", { className: "smx-count" }, "当前 " + toolDescMax),
+        h("button", { type: "button", className: "smx-btn", onClick: saveToolDesc }, "Save"),
+        h("span", { className: "smx-count" }, "Now " + toolDescMax),
       ),
       h("div", { className: "smx-setting" },
-        h("span", { className: "smx-setting__label" }, "stdio 消息上限（MB）"),
+        h("span", { className: "smx-setting__label" }, "stdio message limit (MB)"),
         h("input", {
           type: "number",
           className: "smx-input",
           value: bufferDraft,
           min: 1,
-          placeholder: "SDK 默认 10",
+          placeholder: "SDK default 10",
           onChange: (e) => setBufferDraft(e.target.value),
         }),
-        h("button", { type: "button", className: "smx-btn", onClick: saveBufferMb }, "保存"),
+        h("button", { type: "button", className: "smx-btn", onClick: saveBufferMb }, "Save"),
         h("span", { className: "smx-count" },
-          bufferMb === null ? "当前 SDK 默认 10 MB；超出上限的消息会被丢弃并报错，连接不断开" : "当前 " + bufferMb + " MB"),
+          bufferMb === null ? "Now the SDK default of 10 MB; a larger message is dropped with an error and the connection stays open" : "Now " + bufferMb + " MB"),
       ),
       notice ? h(Notice, { kind: "success", onDismiss: () => setNotice("") }, notice) : null,
       error ? h(Notice, { kind: "error", onDismiss: () => setError("") }, error) : null,
-      loading ? h(Empty, null, "加载中\u2026")
-        : entries && entries.length === 0 ? h(Empty, null, "没有已注册的 MCP 服务器")
+      loading ? h(Empty, null, "Loading\u2026")
+        : entries && entries.length === 0 ? h(Empty, null, "No MCP servers yet")
         : h("ul", { className: "smx-list" }, rows),
     );
   }
 
   // ── capability section (tabs: 技能 / MCP) ────────────────────────────────
   const APPROVAL_OPTIONS = [
-    ["follow", "跟随当前对话的 DSH 权限"],
-    ["always-ask", "每次都问"],
-    ["always-allow", "始终放行"],
+    ["follow", "Follow the chat's DSH permissions"],
+    ["always-ask", "Always ask"],
+    ["always-allow", "Always allow"],
   ];
 
   function PluginSettings() {
@@ -676,7 +676,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
         const data = await postJson("/skill-mcp-manager/settings", { localCommandApproval: approval, lanHostAllowlist });
         if (typeof data.localCommandApproval === "string") setApproval(data.localCommandApproval);
         setHosts(Array.isArray(data.lanHostAllowlist) ? data.lanHostAllowlist.join(", ") : "");
-        setNotice("已保存");
+        setNotice("Saved");
         setError("");
       } catch (err) {
         setError(errText(err));
@@ -685,7 +685,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
 
     return h("div", { className: "smx-setting smx-setting--block" },
       h("div", { className: "smx-setting__row" },
-        h("label", { className: "smx-setting__label" }, "模型登记本地程序"),
+        h("label", { className: "smx-setting__label" }, "When the model adds a local program"),
         h("select", {
           className: "smx-select",
           value: approval,
@@ -693,18 +693,18 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
         }, APPROVAL_OPTIONS.map((option) => h("option", { key: option[0], value: option[0] }, option[1]))),
       ),
       h("div", { className: "smx-setting__row" },
-        h("label", { className: "smx-setting__label" }, "局域网主机名"),
+        h("label", { className: "smx-setting__label" }, "LAN host names"),
         h("input", {
           className: "smx-input smx-input--wide",
           value: hosts,
-          placeholder: "默认空。只有用电脑名打开时才填写",
+          placeholder: "Empty by default. Only needed when you open the app by computer name",
           onChange: (event) => setHosts(event.target.value),
         }),
       ),
       h("div", { className: "smx-setting__save" },
         error ? h("span", { className: "smx-count" }, error) : null,
         notice ? h("span", { className: "smx-count" }, notice) : null,
-        h("button", { type: "button", className: "smx-btn", onClick: save }, "保存"),
+        h("button", { type: "button", className: "smx-btn", onClick: save }, "Save"),
       ),
     );
   }
@@ -713,13 +713,13 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
     const [tab, setTab] = useState("skills");
     return h("div", { className: "smx" },
       h("header", { className: "smx-header" },
-        h("h2", { className: "smx-title" }, "能力库 (Capability)"),
-        h("div", { className: "smx-subtitle" }, "管理 Agent 的 Skill 与 MCP"),
+        h("h2", { className: "smx-title" }, "Skills & MCP"),
+        h("div", { className: "smx-subtitle" }, "The agent's skills and MCP servers"),
       ),
       h(PluginSettings),
       h(LegacySessionBanner),
       h("div", { className: "smx-tabs" },
-        h("button", { type: "button", className: cx("smx-tab", tab === "skills" && "is-active"), onClick: () => setTab("skills") }, "技能"),
+        h("button", { type: "button", className: cx("smx-tab", tab === "skills" && "is-active"), onClick: () => setTab("skills") }, "Skills"),
         h("button", { type: "button", className: cx("smx-tab", tab === "mcp" && "is-active"), onClick: () => setTab("mcp") }, "MCP"),
       ),
       tab === "skills" ? h(SkillsPanel) : h(McpPanel),
@@ -812,7 +812,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
     const tagId = "@deepseek-ai/dsh-skill-mcp-manager";
     if (document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]") !== null) return;
     const tag = document.createElement("style");
-    tag.dataset.plugin = "dsh-skill-mcp-manager";
+    tag.dataset.plugin = "skill-mcp-manager";
     tag.dataset.pluginCss = tagId;
     tag.textContent = CSS;
     document.head.appendChild(tag);
@@ -825,7 +825,7 @@ window.__ModuleLoader__.load({ id: "dsh-skill-mcp-manager", factory: (require) =
       name: "settings.section",
       id: "capability",
       order: 35,
-      label: "能力库",
+      label: "Skills & MCP",
     }, ManagerSection));
     // Frame-wide notices belong in the shell overlay, not in a settings page:
     // `shell.overlay` is a root-scope `list` slot rendered with no props inside

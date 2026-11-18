@@ -227,7 +227,7 @@ async function dispose(effects) {
   }
   check(/not approved/.test(error), `rejection did not stop the register: ${error}`);
   check(asks.length === 1 && asks[0].reason.includes(process.execPath), "approval reason did not show the program");
-  check(asks[0].reason.includes("再次启动"), "approval reason did not say it will start again");
+  check(asks[0].reason.includes("start it again"), "approval reason did not say it will start again");
   let started = false;
   try { await readFile(marker, "utf8"); started = true; } catch { /* absent */ }
   check(!started, "rejected local command was started");
