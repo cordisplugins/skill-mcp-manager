@@ -18,8 +18,8 @@ npm run acryl -- plugin pull github:cordisplugins/skill-mcp-manager
 
 or Settings > Plugins > Registry > Add to my app. The Settings section appears without a restart.
 
-Needs an app made with acrylblends 1.5.17 or later, which loads a pulled plugin's Settings page. With an older app the tools work and
-the Settings section does not show.
+Needs an app made with acrylblends 1.5.17 or later, which loads a pulled plugin's Settings page; from 1.5.18 it appears in an open
+page without a reload. With an older app the tools work and the Settings section does not show.
 
 Everything it keeps (the server list, its settings) is in the app's own home, `~/.acryl/apps/<app>/data/skill-mcp-manager/`.
 
