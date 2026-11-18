@@ -16,16 +16,12 @@ Shown in DeepSeek Harness, where alone-tree made it, with the labels in English;
 
 ## Add it
 
-In a Blends app that runs (`npm run dev`):
+Every Blends app made or upgraded with acrylblends 1.5.19 or later has it already: the frame installs it from npm (`skill-mcp-manager`).
+Bring an older app up with `npx acrylblends@latest upgrade`, then `npm install`.
 
-```sh
-npm run acryl -- plugin pull github:cordisplugins/skill-mcp-manager
-```
-
-or Settings > Plugins > Registry > Add to my app. The Settings section appears without a restart.
-
-Needs an app made with acrylblends 1.5.17 or later, which loads a pulled plugin's Settings page; from 1.5.18 it appears in an open
-page without a reload. With an older app the tools work and the Settings section does not show.
+Pulling it as a plugin (`npm run acryl -- plugin pull github:cordisplugins/skill-mcp-manager`) is only for an app you do not upgrade. It needs
+acrylblends 1.5.17 or later for its Settings section to show. In an app that has it built in, a pulled copy is refused because its tools
+are already registered; remove it with `npm run acryl -- plugin remove skill-mcp-manager`.
 
 Everything it keeps (the server list, its settings) is in the app's own home, `~/.acryl/apps/<app>/data/skill-mcp-manager/`.
 
